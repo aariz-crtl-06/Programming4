@@ -15,6 +15,7 @@ namespace NodeCanvas.Tasks.Actions {
 		//Return null if init was successfull. Return an error string otherwise
 		protected override string OnInit() {
 			return null;
+
 		}
 
 		//This is called once each time the task is enabled.
