@@ -9,6 +9,7 @@ namespace NodeCanvas.Tasks.Actions
 
 	public class DetectAT : ActionTask
 	{
+        //Custom action task to check if an enemy has been detected
         public BBParameter<bool> detected;
 
        
@@ -26,6 +27,7 @@ namespace NodeCanvas.Tasks.Actions
 	
 		protected override void OnUpdate()
 		{
+            //If detected is true, end action
             if (detected.value)
             {
                 EndAction(true);
