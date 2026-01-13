@@ -11,9 +11,26 @@ namespace NodeCanvas.Tasks.Actions {
 		public Transform target;
 		public float stoppingDistance = 0.1f;
 
+		private Blackboard agentBlackboard;
+
 		protected override string OnInit() {
-			return null;
+
+			agentBlackboard = agent.GetComponent<Blackboard>();
+
+			if (agentBlackboard != null)
+			{
+				return null;
+			}
+
+			else return $"MoveAndRotateTowards - {agent.name}: unble to get blackboard reference!!";
 		}
+
+		protected override void OnExecute()
+		{
+			moveSpeed = agentBlackboard.GetVariableValue<float>("moveSpeed");
+			turnSpeed = agentBlackboard.GetVariableValue<float>("turnSpeed");
+			stoppingDistance = agentBlackboard.GetVariableValue<float>("stoppingDistance");
+        }
 
 		protected override void OnUpdate() 
 		{
@@ -25,7 +42,7 @@ namespace NodeCanvas.Tasks.Actions {
 				Quaternion.RotateTowards(agent.transform.rotation, rotation, turnSpeed * Time.deltaTime)
 				);
 
-			if(Vector3.Distance(agent.transform.position, target.position) > stoppingDistance )
+			if(Vector3.Distance(agent.transform.position, target.position) < stoppingDistance )
 			{
 				EndAction(true);
 			}
