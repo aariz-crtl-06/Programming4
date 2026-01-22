@@ -1,6 +1,6 @@
 using NodeCanvas.Framework;
 using ParadoxNotion.Design;
-
+using UnityEngine;
 
 namespace NodeCanvas.Tasks.Actions {
 
@@ -8,32 +8,37 @@ namespace NodeCanvas.Tasks.Actions {
 
         public BBParameter<int> health;
 
-        //Use for initialization. This is called only once in the lifetime of the task.
-        //Return null if init was successfull. Return an error string otherwise
         protected override string OnInit() {
 			return null;
 		}
 
-		//This is called once each time the task is enabled.
-		//Call EndAction() to mark the action as finished, either in success or failure.
-		//EndAction can be called from anywhere.
 		protected override void OnExecute() {
-			health.value = 5;
+            //If health is less than or equal to 0, reset it
+            if (health.value <= 0)
+                health.value = 2;
 
-			EndAction(true);
+
+        }
+
+
+		protected override void OnUpdate()
+		{
+
+            //If health is 1 or less, end action
+            if (health.value <= 1)
+			{
+				Debug.Log("Target Attacked!");
+				EndAction(true);
+
+			}
+
 		}
 
-		//Called once per frame while the action is active.
-		protected override void OnUpdate() {
-			
-		}
-
-		//Called when the task is disabled.
 		protected override void OnStop() {
 			
 		}
 
-		//Called when the task is paused.
+
 		protected override void OnPause() {
 			
 		}
