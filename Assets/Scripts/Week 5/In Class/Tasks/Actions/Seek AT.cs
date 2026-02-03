@@ -12,7 +12,7 @@ public class SeekAT : ActionTask
 
     protected override void OnUpdate()
     {
-        hasTargetBBP.value = friendlyTarget != null;
+        hasTargetBBP.value = friendlyTarget.value != null;
         if (hasTargetBBP.value == false)
             EndAction();
 

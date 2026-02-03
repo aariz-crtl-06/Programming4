@@ -15,7 +15,7 @@ namespace NodeCanvas.Tasks.Actions {
 		public float sampleRate;
 		public float sampleRadius;
 
-		private NavMeshAgent navAgent;
+		public NavMeshAgent navAgent;
 		private Vector3 lastTargetDestination;
 
 		protected override string OnInit() {
@@ -30,9 +30,7 @@ namespace NodeCanvas.Tasks.Actions {
 				return null;
 		}
 
-		protected override void OnExecute() {
-			EndAction(true);
-		}
+		
 
 		protected override void OnUpdate()
 		{
