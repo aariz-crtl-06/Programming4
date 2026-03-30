@@ -16,8 +16,8 @@ namespace NodeCanvas.Tasks.Conditions {
             //hunger grows over time
             hunger.value -= Time.deltaTime;
 
-            //If hunger is above 40, return false to trigger eating behavior
-            if (hunger.value >= 40) {
+            //If hunger is above 10, return false to trigger eating behavior
+            if (hunger.value >= 10) {
 				return false;
             }
 			else

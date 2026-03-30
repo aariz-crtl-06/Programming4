@@ -11,11 +11,11 @@ NavMeshProjectSettings:
     cost: 1
   - name: Jump
     cost: 2
-  - name: 
+  - name: Coral
     cost: 1
-  - name: 
+  - name: Sand
     cost: 1
-  - name: 
+  - name: Sea
     cost: 1
   - name: 
     cost: 1

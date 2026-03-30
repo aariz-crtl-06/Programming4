@@ -14,6 +14,11 @@ namespace NodeCanvas.Tasks.Actions
         public BBParameter<float> turnSpeed = 3f;
         public BBParameter<bool> rotateVelocity = true;
 
+        public BBParameter<float> shoreTime;
+
+        //stamina
+        public BBParameter<float> stamina;
+
         private float timer;
 
         protected override string OnInit()
@@ -34,6 +39,8 @@ namespace NodeCanvas.Tasks.Actions
 
         protected override void OnUpdate()
         {
+            stamina.value -= Time.deltaTime ;
+            shoreTime.value -= Time.deltaTime;
             // Safety check
             if (navAgent.value == null)
             {
@@ -60,7 +67,7 @@ namespace NodeCanvas.Tasks.Actions
                 {
                     Vector3 randomPoint = center + Random.insideUnitSphere * wanderRadius.value;
 
-                    if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, 5f, NavMesh.AllAreas))
+                    if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, 5f, navAgent.value.areaMask))
                     {
                         destination = hit.position;
                         found = true;

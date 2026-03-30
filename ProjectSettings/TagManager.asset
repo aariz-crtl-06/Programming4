@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - Friendly
+  - Algae
   layers:
   - Default
   - TransparentFX

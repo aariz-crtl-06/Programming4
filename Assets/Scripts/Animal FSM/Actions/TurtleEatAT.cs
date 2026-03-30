@@ -3,37 +3,66 @@ using ParadoxNotion.Design;
 using UnityEngine;
 using UnityEngine.AI;
 
+namespace NodeCanvas.Tasks.Actions
+{
 
-namespace NodeCanvas.Tasks.Actions {
+    public class TurtleEatAT : ActionTask
+    {
 
-	public class TurtleEatAT : ActionTask {
+        public BBParameter<float> hunger;
+        public BBParameter<NavMeshAgent> navAgent;
+        public BBParameter<float> stamina;
 
-		public BBParameter<float> hunger;
-		public BBParameter<NavMeshAgent> navAgent;
-		public BBParameter<GameObject> algae;
-		protected override string OnInit() {
-			return null;
-		}
+        private GameObject targetAlgae;
 
-		
-		protected override void OnExecute() {
-            //Set turtle destination to algae
-            navAgent.value.SetDestination(algae.value.transform.position);
-		}
+        protected override void OnExecute()
+        {
+            GameObject[] allAlgae = GameObject.FindGameObjectsWithTag("Algae");
 
-		protected override void OnUpdate() {
-            //When turtle reaches algae, hunger replenshes
-            if (!navAgent.value.pathPending && navAgent.value.remainingDistance <= navAgent.value.stoppingDistance + 0.2f)
+            float closestDistance = Mathf.Infinity;
+            targetAlgae = null;
+
+            for (int i = 0; i < allAlgae.Length; i++)
+            {
+                float distance = Vector3.Distance(agent.transform.position, allAlgae[i].transform.position);
+
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    targetAlgae = allAlgae[i];
+                }
+            }
+
+            if (targetAlgae != null)
+            {
+                navAgent.value.SetDestination(targetAlgae.transform.position);
+            }
+            else
+            {
+                EndAction(false);
+            }
+        }
+
+        protected override void OnUpdate()
+        {
+            stamina.value -= Time.deltaTime;
+
+            if (targetAlgae == null)
+            {
+                EndAction(false);
+                return;
+            }
+
+            if (!navAgent.value.pathPending &&
+                navAgent.value.remainingDistance <= navAgent.value.stoppingDistance + 0.2f)
             {
                 hunger.value += Time.deltaTime;
             }
 
-            //Once hunger is above 50, end action
             if (hunger.value > 50)
-			{
-				EndAction(true);
-			}
-		}
-
-	}
+            {
+                EndAction(true);
+            }
+        }
+    }
 }
