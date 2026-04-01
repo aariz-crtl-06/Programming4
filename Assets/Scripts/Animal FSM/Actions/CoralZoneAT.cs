@@ -12,6 +12,7 @@ namespace NodeCanvas.Tasks.Actions
         public BBParameter<float> wanderRadius;
         public BBParameter<float> coralTime;
 
+        //seagrass and coral area names for navmesh
         public string normalAreaName = "Walkable";
         public string coralAreaName = "Coral";
 
@@ -19,79 +20,122 @@ namespace NodeCanvas.Tasks.Actions
         private int coralArea;
 
         private float timer;
-        private int phase = 0; // 0 = go to coral, 1 = stay, 2 = leave
+        private int phase = 0; // 0 = go to coral, 1 = swim in coral, 2 = return
+
+        private Vector3 returnPoint;
+        private bool hasReturnPoint = false;
 
         protected override void OnExecute()
         {
+            //Get the area names from navmesh surface
             normalArea = NavMesh.GetAreaFromName(normalAreaName);
             coralArea = NavMesh.GetAreaFromName(coralAreaName);
 
             timer = 0f;
             phase = 0;
 
-            // allow both so it can reach coral
+            // Find a valid return point in the seagrass zone
+            if (NavMesh.SamplePosition(agent.transform.position, out NavMeshHit startHit, 5f, 1 << normalArea))
+            {
+                returnPoint = startHit.position;
+                hasReturnPoint = true;
+            }
+            else
+            {
+                hasReturnPoint = false;
+                EndAction(false);
+                return;
+            }
+
+            //Set area mask to allow movement only on Walkable and Coral areas
             agent.areaMask = (1 << normalArea) | (1 << coralArea);
 
-            PickCoralDestination();
+            if (!PickCoralDestination())
+            {
+                EndAction(false);
+                return;
+            }
         }
 
         protected override void OnUpdate()
         {
-            // ---------- PHASE 0: GO TO CORAL ----------
+            if (agent == null || !agent.isOnNavMesh)
+            {
+                EndAction(false);
+                return;
+            }
+
+            // phase 0: go to coral
             if (phase == 0)
             {
-                if (!agent.pathPending &&
-                    agent.remainingDistance <= agent.stoppingDistance + 0.2f)
+                if (HasArrived())
                 {
-                    // lock to coral only
-                    agent.areaMask = (1 << coralArea);
-
                     phase = 1;
                     timer = 0f;
 
-                    PickCoralDestination();
+                    agent.areaMask = (1 << coralArea);
+
+                    if (!PickCoralDestination())
+                    {
+                        EndAction(false);
+                        return;
+                    }
                 }
             }
 
-            // ---------- PHASE 1: SWIM IN CORAL ----------
+            // phase 1: swim in coral
             else if (phase == 1)
             {
                 timer += Time.deltaTime;
 
-                // keep wandering inside coral
-                if (!agent.pathPending &&
-                    agent.remainingDistance <= agent.stoppingDistance + 0.2f)
+                if (HasArrived())
                 {
-                    PickCoralDestination();
+                    if (!PickCoralDestination())
+                    {
+                        EndAction(false);
+                        return;
+                    }
                 }
 
-                // after 15 seconds → leave
                 if (timer >= timeInCoral.value)
                 {
-                    agent.areaMask = (1 << normalArea);
-                    phase = 2;
+                    if (!hasReturnPoint)
+                    {
+                        EndAction(false);
+                        return;
+                    }
 
-                    PickNormalDestination();
+                    phase = 2;
+                    agent.areaMask = (1 << normalArea) | (1 << coralArea);
+                    agent.SetDestination(returnPoint);
                 }
             }
 
-            // ---------- PHASE 2: RETURN ----------
+            // phase 2: return to seagrass zone
             else if (phase == 2)
             {
-                if (!agent.pathPending &&
-                    agent.remainingDistance <= agent.stoppingDistance + 0.2f)
+                if (HasArrived())
                 {
-                    coralTime.value+= 50;
-                    EndAction(true);
+                    if (NavMesh.SamplePosition(agent.transform.position, out NavMeshHit hit, 2f, 1 << normalArea))
+                    {
+                        coralTime.value += 60f;
+                        EndAction(true);
+                    }
                 }
             }
         }
 
-        // -------------------------
-        // Pick coral destination
-        // -------------------------
-        void PickCoralDestination()
+        private bool HasArrived()
         {
+            if (agent.pathPending)
+                return false;
+
+            return agent.remainingDistance <= agent.stoppingDistance + 0.2f;
+        }
+
+        private bool PickCoralDestination()
+        {
+            // Pick a random point within wanderRadius on the coral area
             Vector3 center = agent.transform.position;
 
             for (int i = 0; i < 20; i++)
@@ -102,34 +146,20 @@ namespace NodeCanvas.Tasks.Actions
                     Random.Range(-wanderRadius.value, wanderRadius.value)
                 );
 
-                if (NavMesh.SamplePosition(random, out NavMeshHit hit, 5f, (1 << coralArea)))
+                if (NavMesh.SamplePosition(random, out NavMeshHit hit, 5f, 1 << coralArea))
                 {
-                    agent.SetDestination(hit.position);
-                    return;
+                    return agent.SetDestination(hit.position);
                 }
             }
+
+            return false;
         }
 
-        // -------------------------
-        // Pick normal destination
-        // -------------------------
-        void PickNormalDestination()
+        protected override void OnStop()
         {
-            Vector3 center = agent.transform.position;
-
-            for (int i = 0; i < 20; i++)
+            if (agent != null && agent.isOnNavMesh)
             {
-                Vector3 random = center + new Vector3(
-                    Random.Range(-wanderRadius.value, wanderRadius.value),
-                    0f,
-                    Random.Range(-wanderRadius.value, wanderRadius.value)
-                );
-
-                if (NavMesh.SamplePosition(random, out NavMeshHit hit, 5f, (1 << normalArea)))
-                {
-                    agent.SetDestination(hit.position);
-                    return;
-                }
+                agent.ResetPath();
             }
         }
     }

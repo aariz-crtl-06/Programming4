@@ -9,7 +9,7 @@ namespace NodeCanvas.Tasks.Conditions
 
     public class TurtleCoralZone : ConditionTask
     {
-
+        //Checks if the turtle's coral time has reached, allowing it to go to the coral zone
         public BBParameter<float> coralTime;
 
         protected override string OnInit()

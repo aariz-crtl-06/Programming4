@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f945e777233a59f4aba40aeca29093a6, type: 3}
+  m_Name: Escape Shark
+  m_EditorClassIdentifier: 
+  _serializedGraph: '{"type":"NodeCanvas.StateMachines.FSM","nodes":[{"_actionList":{"executionMode":1,"actions":[{"stayTime":{"_value":5.0},"canEvade":{"_name":"canEvade","_targetVariableID":"50ee6b34-7f4c-4c04-8af8-24f445aa1bf2"},"turtleAgent":{"_name":"navAgent","_targetVariableID":"950d504f-187f-4134-befb-2cdd2134a6aa"},"overrideAgent":{"_type":"UnityEngine.AI.NavMeshAgent","_name":"Shark","_targetVariableID":"37238b4a-7a0a-4578-8a51-e432092fe765"},"$type":"NodeCanvas.Tasks.Actions.EvadeSharkAT"}]},"_color":{"r":1.0,"g":0.42,"b":0.32,"a":1.0},"_position":{"x":569.0,"y":257.0},"$type":"NodeCanvas.StateMachines.ActionState"}],"connections":[],"canvasGroups":[],"localBlackboard":{"_variables":{}}}'
+  _objectReferences: []
+  _graphSource:
+    _version: 3.33
+    _category: 
+    _comments: 
+    _translation: {x: 89, y: 120}
+    _zoomFactor: 1
+  _haltSerialization: 0
+  _externalSerializationFile: {fileID: 0}

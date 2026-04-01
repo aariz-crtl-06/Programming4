@@ -5,25 +5,20 @@ using UnityEngine.AI;
 
 namespace NodeCanvas.Tasks.Actions
 {
-    public class TurtleSwimAT : ActionTask
+    public class SharkSwimAT : ActionTask
     {
         public BBParameter<NavMeshAgent> navAgent;
-        //Movement parameters
         public BBParameter<float> wanderRadius = 15f;
         public BBParameter<float> repathInterval = 4f;
         public BBParameter<float> smallSlack = 0.2f;
         public BBParameter<float> turnSpeed = 3f;
         public BBParameter<bool> rotateVelocity = true;
 
-        //Makes others turtle states active when depleted
-        public BBParameter<float> shoreTime;
-        public BBParameter<float> stamina;
-
         private float timer;
 
         protected override string OnInit()
         {
-            // fetch agent if not assigned in the inspector
+            // Auto-fetch agent if not assigned in the blackboard/inspector
             if (navAgent.value == null)
             {
                 navAgent.value = agent.GetComponent<NavMeshAgent>();
@@ -33,16 +28,12 @@ namespace NodeCanvas.Tasks.Actions
 
         protected override void OnExecute()
         {
-            // pick destination pick on the first update
+            // Force an immediate destination pick on the first update
             timer = repathInterval.value;
         }
 
         protected override void OnUpdate()
         {
-            // Decrease stamina and shore time
-            stamina.value -= Time.deltaTime ;
-            shoreTime.value -= Time.deltaTime;
-
             // Safety check
             if (navAgent.value == null)
             {
@@ -55,16 +46,16 @@ namespace NodeCanvas.Tasks.Actions
             // Check if arrived at destination
             bool arrived = !navAgent.value.pathPending && navAgent.value.remainingDistance <= navAgent.value.stoppingDistance + smallSlack.value;
 
-            //if arrived or time has passed repath value, pick a new random destination
+            //If arrived or time has passed repath value, pick a new random destination
             if (arrived || timer >= repathInterval.value)
             {
                 Vector3 center = agent.transform.position;
 
-                // try multiple times to find a valid NavMesh point
+                // Try multiple times to find a valid NavMesh point
                 bool found = false;
                 Vector3 destination = center;
 
-                // try 20 times to find a valid point
+                // Try up to 20 times to find a valid point
                 for (int i = 0; i < 20; i++)
                 {
                     Vector3 randomPoint = center + Random.insideUnitSphere * wanderRadius.value;
@@ -76,7 +67,7 @@ namespace NodeCanvas.Tasks.Actions
                         break;
                     }
                 }
-                // set the new destination if found
+                // Set the new destination if found
                 if (found)
                 {
                     navAgent.value.SetDestination(destination);
@@ -84,11 +75,13 @@ namespace NodeCanvas.Tasks.Actions
 
                 timer = 0f;
             }
+
+
         }
 
         protected override void OnStop()
         {
-            // reset the path when the action stops
+            // Reset the path when the action stops
             if (navAgent.value != null && navAgent.value.isOnNavMesh)
             {
                 navAgent.value.ResetPath();

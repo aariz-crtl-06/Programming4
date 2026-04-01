@@ -7,6 +7,7 @@ namespace NodeCanvas.Tasks.Conditions {
 
 	public class TurtleTiredCT : ConditionTask {
 
+		//Checks stamina of turtle
 		public BBParameter<float> stamina;
 	
         protected override string OnInit(){

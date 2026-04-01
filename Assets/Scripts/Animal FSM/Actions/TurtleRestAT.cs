@@ -20,10 +20,10 @@ namespace NodeCanvas.Tasks.Actions {
 		
 		protected override void OnUpdate() {
             timer -= Time.deltaTime;
-
+			//Timer goes down, once complete, stamina refills
             if (timer <= 0f)
             {
-                stamina.value = 100f;
+                stamina.value = 50f;
                 EndAction(true);
             }
 
